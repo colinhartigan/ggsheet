@@ -17,7 +17,7 @@ class Valorant:
         # agent images are from https://playvalorant.com/page-data/en-us/agents/page-data.json
         content = Loader.load_all_content(self.client)
         matches = self.client.fetch_match_history()["History"]
-        match_data = self.client.fetch_match_details(matches[3]["MatchID"])
+        match_data = self.client.fetch_match_details(matches[0]["MatchID"])
         
         total_rounds = len(match_data["roundResults"])
 
