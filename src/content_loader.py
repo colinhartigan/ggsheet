@@ -63,7 +63,7 @@ class Loader:
         for agent in agents:
             content_data["agents"].append({
                 "uuid": agent["uuid"],
-                "display_name": agent["displayName"],
+                "display_name": agent["displayName"].replace("/",""),
                 "internal_name": agent["developerName"]
             })
 

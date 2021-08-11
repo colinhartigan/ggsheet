@@ -14,10 +14,10 @@ class Valorant:
         self.client.activate()
 
     def load_match_data(self):
-        # agent images are from https://playvalorant.com/en-us/agents/
+        # agent images are from https://playvalorant.com/page-data/en-us/agents/page-data.json
         content = Loader.load_all_content(self.client)
         matches = self.client.fetch_match_history()["History"]
-        match_data = self.client.fetch_match_details(matches[0]["MatchID"])
+        match_data = self.client.fetch_match_details(matches[3]["MatchID"])
         
         total_rounds = len(match_data["roundResults"])
 
@@ -28,8 +28,9 @@ class Valorant:
             "teams": [
                 {
                     "team_name": team["teamId"],
-                    "won": team["won"],
-                    "roundsWon": team["roundsWon"],
+                    "team_alias": "ATK" if team["teamId"] == "Red" else "DEF",
+                    "won": "WIN" if team["won"] else "LOSS",
+                    "rounds_won": team["roundsWon"],
                 } for team in match_data["teams"]
             ],
             "players": [
@@ -50,6 +51,12 @@ class Valorant:
         
         # sort players by combat score
         payload["players"] = [sorted(team, key=lambda k: k["combat_score"], reverse=True) for team in payload["players"]]
+
+        # sort teams by red/blue
+        backup = payload["teams"].copy()
+        team_blue = [team for team in backup if team["team_name"] == "Blue"]
+        team_red = [team for team in backup if team["team_name"] == "Red"]
+        payload["teams"] = [team_red[0],team_blue[0]]
 
         #print(payload)
         return payload

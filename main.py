@@ -7,3 +7,4 @@ if __name__ == "__main__":
 
     builder = image_builder.Builder(data)
     builder.build_image()
+    print("done")
