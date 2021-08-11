@@ -1,5 +1,7 @@
 import os
-from PIL import Image, ImageFont, ImageDraw
+
+from PIL import Image, ImageDraw, ImageFont
+
 
 class Builder:
 
@@ -21,7 +23,7 @@ class Builder:
         "tungsten": {
             "mvp_player": ImageFont.truetype(os.path.join(cur_path,"data/fonts/Tungsten-Bold.ttf"), 90),
             "mvp_stats": ImageFont.truetype(os.path.join(cur_path,"data/fonts/Tungsten-Bold.ttf"), 65),
-            "mvp_label": ImageFont.truetype(os.path.join(cur_path,"data/fonts/Tungsten-Bold.ttf"), 40),
+            "mvp_label": ImageFont.truetype(os.path.join(cur_path,"data/fonts/Tungsten-Bold.ttf"), 35),
             "header_scores": ImageFont.truetype(os.path.join(cur_path,"data/fonts/Tungsten-Bold.ttf"), 165),
             "header_team_name": ImageFont.truetype(os.path.join(cur_path,"data/fonts/Tungsten-Bold.ttf"), 120),
             "player_name": ImageFont.truetype(os.path.join(cur_path,"data/fonts/Tungsten-Bold.ttf"), 45),
@@ -45,7 +47,7 @@ class Builder:
             "text": 212,
             "images": 212,
             "team": 239,
-        }
+        },
     }
 
     def __init__(self, game_data):
@@ -70,18 +72,41 @@ class Builder:
                         "font": Builder.fonts["ddin"]["map_text"],
                         "var_name": lambda *x: self.game_data["match_map_display_name"],
                         "upper": True,
-                    }
+                    },
+
+                    "mode_name": {
+                        "anchor": (1679,236),
+                        "dimensions": (164,21), 
+                        "color": (255,255,255),
+                        "font": Builder.fonts["ddin"]["map_text"],
+                        "var_name": lambda *x: self.game_data["match_mode_display_name"],
+                        "upper": True,
+                        "justify": "l",
+                    },
+                    "mode_label": {
+                        "anchor": (1679,215),
+                        "dimensions": (64,14), 
+                        "color": (255,255,255),
+                        "font": Builder.fonts["ddin"]["map_label"],
+                        "text": "MODE",
+                        "upper": True,
+                        "justify": "l",
+                    },
+
                 },
                 "images": {
                     "map": {
                         "anchor": (32,32),
                         "dimensions": (240,240),
+                        "crop": lambda *x: ((426-240)//2, 0, (426-240)//2 + 240, 240),
                         "file_path": "data/maps/map_{map}.png", 
                     },
-                    "event_image": {
+                    "mode": {
                         "anchor": (1648,32),
-                        "dimensions": (240,240),
-                        "file_path": "data/misc_assets/event_img.png", 
+                        "dimensions": (240,190),
+                        "target_width": 200,
+                        "centered": True,
+                        "file_path": "data/modes/mode_{mode}.png", 
                     }
                 }
             },
@@ -147,7 +172,7 @@ class Builder:
             "mvps": {
                 "text": {
                     "agent_name": {
-                        "anchor": (255,401),
+                        "anchor": (255,398),
                         "dimensions": (296, 33), 
                         "color": (139,150,154),
                         "font": Builder.fonts["ddin"]["mvp_agent"],
@@ -198,16 +223,22 @@ class Builder:
                     }
                 },
                 "images": {
+                    "agent_silhouette": {
+                        "anchor": (610,365),
+                        "dimensions": (332,305), 
+                        "crop": lambda *x: (0,0,x[1][0]*(2/3),x[1][1]) if x[0] else (x[1][0]*(1/3),0,x[1][0],x[1][1]),
+                    },
                     "agent": {
                         "anchor": (610,365),
                         "dimensions": (332,305), 
                         "target_width": 400,
-                        "filename": "agent_{agent}.png"
+                        "crop": lambda *x: (0,0,x[1][0],x[1][1]) if x[0] else (x[2]-x[1][0],0,x[2],x[1][1]),
+                        "file_path": "data/agents/agent_{agent}.png"
                     },
                     "mvp_gradient": {
                         "anchor": (642,629),
                         "dimensions": (300,41),
-                        "filename": "mvp_gradient_{side}.png" 
+                        "file_path": "data/misc_assets/mvp_gradient_{side}.png" 
                     }
                 }
             },
@@ -270,13 +301,15 @@ class Builder:
                     "agent": {
                         "anchor": (57,748),
                         "dimensions": (294,230), 
-                        "target_width": 204,
-                        "filename": "agent_{agent}.png"
+                        "slot_width": 204,
+                        "crop": lambda *x: (abs(57-(x[0]//2)),0,57+(x[1][0]-(x[0]//2)),x[1][1]),
+                        "file_path": "data/agents/agent_{agent}.png"
                     },
                     "player_gradient": {
                         "anchor": (102,868),
                         "dimensions": (204,111), 
-                        "filename": "player_gradient.png"
+                        "crop": lambda *x: (0,0,x[0][0]+x[1][0],x[1][1]),
+                        "file_path": "data/misc_assets/player_gradient.png"
                     }
                 },
             }
@@ -295,6 +328,7 @@ class Builder:
             self.__draw_text(score_label,int(team_id))
 
             team_name_label = refs["text"][f"team_{team_name}_name"]
+            team_name_label["color"] = (139,140,137) if not team["won_bool"] else team_name_label["color"]
             self.__draw_text(team_name_label,int(team_id))
 
             team_wl_label = refs["text"][f"team_{team_name}_wl"]
@@ -304,23 +338,13 @@ class Builder:
     def draw_header(self):
         refs = self.image_ref_points["header"]
         for img_type, image in refs["images"].items():
-            new_img = Image.open(os.path.join(Builder.cur_path,*image["file_path"].format(map=self.game_data['match_map_display_name'].lower()).split("/"))).convert("RGBA")
-            width, height = new_img.size
-            ratio = width/height
-            new_height = image["dimensions"][1]
-            new_width = int(ratio * new_height)
-            new_img = new_img.resize((new_width,new_height),Image.ANTIALIAS)
-
-            if img_type == "map":
-                diff = (426-240)    
-                crop_bounds = (diff//2, 0, diff//2 + 240, 240)
-                new_img = new_img.crop(crop_bounds)
-
-            self.img.paste(new_img, image["anchor"], new_img)
+            new_img = Image.open(os.path.join(Builder.cur_path,*image["file_path"].format(map=self.game_data['match_map_display_name'].lower(),mode=self.game_data['match_mode'].lower()).split("/"))).convert("RGBA")
+            self.__draw_image(image,new_img)
 
 
         for label_type,label in refs["text"].items():
             self.__draw_text(label)
+
 
     def draw_players(self):
         player_refs = self.image_ref_points["players"]
@@ -360,42 +384,28 @@ class Builder:
                     for img_type,image in mvp_refs["images"].items():
                         new_img = None
                         if img_type == "agent": 
-                            new_img = Image.open(os.path.join(Builder.cur_path,*f"data/agents/{image['filename'].format(agent=player['agent_display_name'])}".split("/"))).convert("RGBA")
+                            new_img = Image.open(os.path.join(Builder.cur_path,*image["file_path"].format(agent=player['agent_display_name']).split("/"))).convert("RGBA")
+                            crop_v = (True,image["dimensions"]) if team_id == 0 else (False,image["dimensions"],image["target_width"])
+                            agent_image, anchor = self.__draw_image(image,new_img,size_axis="x",crop_vars=crop_v,no_draw=True)
+                        
+                            # draw agent silhouette
+                            agent_silhouette = mvp_refs["images"]["agent_silhouette"]
+                            offset = 6
+                            alpha = agent_image.getchannel('A')
+                            silhouette = Image.new('RGBA', agent_image.size, color=(255,70,85,255) if team_id == 0 else (13,180,150,255))
+                            silhouette.putalpha(alpha) 
+
+                            s_crop_v = (True,image["dimensions"]) if team_id == 0 else (False,image["dimensions"])
+                            anchor_o = (image["anchor"][0]-offset,image["anchor"][1]) if team_id == 0 else (int(image["anchor"][0]+(image["dimensions"][0]*(1/3)))+offset,image["anchor"][1])
+                            self.__draw_image(agent_silhouette,silhouette,size_axis="x",crop_vars=s_crop_v,anchor_override=anchor_o)
+
+                            self.__draw_prepared_image(agent_image,anchor)
+
+
                         elif img_type == "mvp_gradient":
-                            new_img = Image.open(os.path.join(Builder.cur_path,*f"data/misc_assets/{image['filename'].format(side=team_id)}".split("/"))).convert("RGBA")
-
-
-                        if new_img is not None:
-                            if image.get("target_width"):
-                                width, height = new_img.size
-                                ratio = height/width
-                                new_width = image["target_width"]
-                                new_height = int(ratio * new_width)
-                                new_img = new_img.resize((new_width,new_height),Image.ANTIALIAS)
-
-                                if team_id == 0:
-                                    crop_bounds = (0,0,image["dimensions"][0],image["dimensions"][1])
-                                else:
-                                    crop_bounds = (new_width-image["dimensions"][0],0,new_width,image["dimensions"][1])
-                                new_img = new_img.crop(crop_bounds)
-
-                            if img_type == "agent":
-                                offset = 6
-                                alpha = new_img.getchannel('A')
-                                silhouette = Image.new('RGBA', new_img.size, color=(255,70,85,255) if team_id == 0 else (13,180,150,255))
-                                silhouette.putalpha(alpha) 
-
-                                if team_id == 0:
-                                    crop_bounds = (0,0,image["dimensions"][0]*(2/3),image["dimensions"][1])
-                                    silhouette = silhouette.crop(crop_bounds)
-                                    self.img.paste(silhouette,(image["anchor"][0]-offset,image["anchor"][1]),silhouette)
-                                else:
-                                    crop_bounds = (image["dimensions"][0]*(1/3),0,image["dimensions"][0],image["dimensions"][1])
-                                    silhouette = silhouette.crop(crop_bounds)
-                                    self.img.paste(silhouette,(int(image["anchor"][0]+image["dimensions"][0]*(1/3))+offset,image["anchor"][1]),silhouette)
-
-                            self.img.paste(new_img,image["anchor"],new_img)
-                            
+                            new_img = Image.open(os.path.join(Builder.cur_path,*image['file_path'].format(side=team_id).split("/"))).convert("RGBA")
+                            self.__draw_image(image,new_img)
+                           
 
                     # load text
                     for label_type,label in mvp_refs["text"].items():
@@ -417,35 +427,15 @@ class Builder:
                     for img_type,image in player_refs["images"].items():
                         new_img = None
                         if img_type == "agent": 
-                            new_img = Image.open(os.path.join(Builder.cur_path,*f"data/agents/{image['filename'].format(agent=player['agent_display_name'])}".split("/"))).convert("RGBA")
+                            new_img = Image.open(os.path.join(Builder.cur_path,*image["file_path"].format(agent=player['agent_display_name']).split("/"))).convert("RGBA")
+                            self.__draw_image(image,new_img,size_axis="x",crop_vars=(image["slot_width"],image["dimensions"]),anchor_override=(image["anchor"][0]+45,image["anchor"][1]))
                         elif img_type == "player_gradient":
-                            new_img = Image.open(os.path.join(Builder.cur_path,*f"data/misc_assets/{image['filename']}".split("/"))).convert("RGBA")
-
-                        if new_img is not None:
-                            width, height = new_img.size
-                            ratio = height/width
-                            new_width = image["dimensions"][0]
-                            new_height = int(ratio * new_width)
-                            new_img = new_img.resize((new_width,new_height),Image.ANTIALIAS)
-
-                            if image.get("target_width"):
-                                crop_bounds = (abs(57-(image["target_width"]//2)),0,57+(new_width-(image["target_width"]//2)),image["dimensions"][1])
-                                new_img = new_img.crop(crop_bounds)
-                                self.img.paste(new_img,(image["anchor"][0]+45,image["anchor"][1]),new_img)
-                            
-                            else:
-                                crop_bounds = (0,0,image["anchor"][0]+image["dimensions"][0],image["dimensions"][1])
-                                new_img = new_img.crop(crop_bounds)
-                                self.img.paste(new_img,image["anchor"],new_img)
-
-                            
-                         
-                
+                            new_img = Image.open(os.path.join(Builder.cur_path,*image["file_path"].split("/"))).convert("RGBA")
+                            self.__draw_image(image,new_img,crop_vars=(image["anchor"],image["dimensions"]))                   
 
 
                     for label_type,label in player_refs["text"].items():
                         self.__draw_text(label,int(team_id),int(position))
-
 
 
     def build_image(self):
@@ -457,6 +447,47 @@ class Builder:
 
 
         self.img.save("output.png")
+        
+
+    def __draw_image(self,img_data,new_img,size_axis="y",crop_vars=(),anchor_override=None,no_draw=False):
+        width, height = new_img.size
+        ratio = width/height if size_axis == "y" else height/width
+        new_height = 0
+        new_width = 0
+
+        if img_data.get("target_width"):
+            new_width = img_data["target_width"]
+            new_height = int(ratio * new_width)
+        else:
+            if size_axis == "y":
+                new_height = img_data["dimensions"][1]
+                new_width = int(ratio * new_height)
+            elif size_axis == "x":
+                new_width = img_data["dimensions"][0]
+                new_height = int(ratio * new_width)
+        
+        new_img = new_img.resize((new_width,new_height),Image.ANTIALIAS)
+
+        crop_bounds = None
+        if img_data.get("crop"):
+            crop_bounds = img_data["crop"](*crop_vars)
+            new_img = new_img.crop(crop_bounds)
+
+        anchor = img_data["anchor"]
+        if anchor_override is not None:
+            anchor = anchor_override
+        if img_data.get("centered"):
+            anchor = (anchor[0]-new_width//2,anchor[1]-new_height//2)
+            anchor = ((img_data["dimensions"][0]//2)+anchor[0],(img_data["dimensions"][1]//2)+anchor[1])
+            print(anchor)
+
+        if not no_draw:
+            self.img.paste(new_img, anchor, new_img)
+        return new_img, anchor
+
+    def __draw_prepared_image(self,new_img,anchor):
+        self.img.paste(new_img,anchor,new_img)
+
 
 
     def __draw_text(self,label,*var):

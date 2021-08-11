@@ -24,11 +24,14 @@ class Valorant:
         payload = {
             "match_id": match_data["matchInfo"]["matchId"],
             "match_map": match_data["matchInfo"]["mapId"],
+            "match_mode": match_data["matchInfo"]["queueID"],
+            "match_mode_display_name": content["queue_aliases"][match_data["matchInfo"]["queueID"]],
             "match_map_display_name": [gmap for gmap in content["maps"] if match_data["matchInfo"]["mapId"] in gmap["path"]][0]["display_name"],
             "teams": [
                 {
                     "team_name": team["teamId"],
                     "team_alias": "ATK" if team["teamId"] == "Red" else "DEF",
+                    "won_bool": team["won"],
                     "won": "WIN" if team["won"] else "LOSS",
                     "rounds_won": team["roundsWon"],
                 } for team in match_data["teams"]
