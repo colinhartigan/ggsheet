@@ -10,15 +10,16 @@ class Builder:
 
     cur_path = os.path.abspath(os.path.join(os.path.dirname(__file__),".."))
     base_image = os.path.join(cur_path,"data/ggsheetreal.png")
+    output_folder = os.path.join(cur_path,"output")
 
     fonts = {
         "ddin": {
             "mvp_agent": ImageFont.truetype(os.path.join(cur_path,"data/fonts/DINNextLTPro-Medium.ttf"), 28),
-            "player_agent": ImageFont.truetype(os.path.join(cur_path,"data/fonts/DINNextLTPro-Medium.ttf"), 16),
+            "player_agent": ImageFont.truetype(os.path.join(cur_path,"data/fonts/DINNextLTPro-Medium.ttf"), 14),
             "map_label": ImageFont.truetype(os.path.join(cur_path,"data/fonts/DINNextLTPro-Regular.ttf"), 20),
             "map_text": ImageFont.truetype(os.path.join(cur_path,"data/fonts/DINNextLTPro-Medium.ttf"), 30),
             "win_loss_label": ImageFont.truetype(os.path.join(cur_path,"data/fonts/DINNextLTPro-Medium.ttf"), 25),
-            "player_stat_label": ImageFont.truetype(os.path.join(cur_path,"data/fonts/DINNextLTPro-Regular.ttf"), 14),
+            "player_stat_label": ImageFont.truetype(os.path.join(cur_path,"data/fonts/DINNextLTPro-Regular.ttf"), 12),
         },
         "tungsten": {
             "mvp_player": ImageFont.truetype(os.path.join(cur_path,"data/fonts/Tungsten-Bold.ttf"), 90),
@@ -26,8 +27,8 @@ class Builder:
             "mvp_label": ImageFont.truetype(os.path.join(cur_path,"data/fonts/Tungsten-Bold.ttf"), 35),
             "header_scores": ImageFont.truetype(os.path.join(cur_path,"data/fonts/Tungsten-Bold.ttf"), 165),
             "header_team_name": ImageFont.truetype(os.path.join(cur_path,"data/fonts/Tungsten-Bold.ttf"), 120),
-            "player_name": ImageFont.truetype(os.path.join(cur_path,"data/fonts/Tungsten-Bold.ttf"), 45),
-            "player_stats": ImageFont.truetype(os.path.join(cur_path,"data/fonts/Tungsten-Bold.ttf"), 43),
+            "player_name": ImageFont.truetype(os.path.join(cur_path,"data/fonts/Tungsten-Bold.ttf"), 40),
+            "player_stats": ImageFont.truetype(os.path.join(cur_path,"data/fonts/Tungsten-Bold.ttf"), 42),
         }
     }
 
@@ -73,26 +74,24 @@ class Builder:
                         "var_name": lambda *x: self.game_data["match_map_display_name"],
                         "upper": True,
                     },
-
-                    "mode_name": {
-                        "anchor": (1679,236),
-                        "dimensions": (164,21), 
-                        "color": (255,255,255),
-                        "font": Builder.fonts["ddin"]["map_text"],
-                        "var_name": lambda *x: self.game_data["match_mode_display_name"],
-                        "upper": True,
-                        "justify": "l",
-                    },
-                    "mode_label": {
-                        "anchor": (1679,215),
-                        "dimensions": (64,14), 
-                        "color": (255,255,255),
-                        "font": Builder.fonts["ddin"]["map_label"],
-                        "text": "MODE",
-                        "upper": True,
-                        "justify": "l",
-                    },
-
+                    # "mode_name": {
+                    #     "anchor": (1679,236),
+                    #     "dimensions": (164,21), 
+                    #     "color": (255,255,255),
+                    #     "font": Builder.fonts["ddin"]["map_text"],
+                    #     "var_name": lambda *x: self.game_data["match_mode_display_name"],
+                    #     "upper": True,
+                    #     "justify": "l",
+                    # },
+                    # "mode_label": {
+                    #     "anchor": (1679,215),
+                    #     "dimensions": (64,14), 
+                    #     "color": (255,255,255),
+                    #     "font": Builder.fonts["ddin"]["map_label"],
+                    #     "text": "MODE",
+                    #     "upper": True,
+                    #     "justify": "l",
+                    # },
                 },
                 "images": {
                     "map": {
@@ -103,7 +102,7 @@ class Builder:
                     },
                     "mode": {
                         "anchor": (1648,32),
-                        "dimensions": (240,190),
+                        "dimensions": (240,240),
                         "target_width": 200,
                         "centered": True,
                         "file_path": "data/modes/mode_{mode}.png", 
@@ -149,7 +148,8 @@ class Builder:
                     "team_red_wl": {
                         "anchor": (542,80),
                         "dimensions": (80,20),
-                        "color": (153,42,51),
+                        "color": (255,70,85),
+                        "alt_color": (153,42,51),
                         "font": Builder.fonts["ddin"]["win_loss_label"],
                         "var_name": lambda *x: self.game_data["teams"][x[0]]["won"],
                         "upper": True,
@@ -158,7 +158,8 @@ class Builder:
                     "team_blue_wl": {
                         "anchor": (1331,80),
                         "dimensions": (80,20),
-                        "color": (24,93,88),
+                        "color": (13,180,150),
+                        "alt_color": (24,93,88),
                         "font": Builder.fonts["ddin"]["win_loss_label"],
                         "var_name": lambda *x: self.game_data["teams"][x[0]]["won"],
                         "upper": True,
@@ -190,7 +191,7 @@ class Builder:
                         "justify": "c"
                     },
                     "kd":{
-                        "anchor": (149,570),
+                        "anchor": (149,565),
                         "dimensions": (126,48),
                         "color": (255,255,255),
                         "font": Builder.fonts["tungsten"]["mvp_stats"],
@@ -198,7 +199,7 @@ class Builder:
                         "justify": "c"
                     },
                     "combat_score": {
-                        "anchor": (330,570),
+                        "anchor": (330,565),
                         "dimensions": (126,48),
                         "color": (255,255,255),
                         "font": Builder.fonts["tungsten"]["mvp_stats"],
@@ -206,7 +207,7 @@ class Builder:
                         "justify": "c"
                     },
                     "kills": {
-                        "anchor": (518,570),
+                        "anchor": (518,565),
                         "dimensions": (126,48),
                         "color": (255,255,255),
                         "font": Builder.fonts["tungsten"]["mvp_stats"],
@@ -224,13 +225,13 @@ class Builder:
                 },
                 "images": {
                     "agent_silhouette": {
-                        "anchor": (610,365),
-                        "dimensions": (332,305), 
+                        "anchor": (610,360),
+                        "dimensions": (332,310), 
                         "crop": lambda *x: (0,0,x[1][0]*(2/3),x[1][1]) if x[0] else (x[1][0]*(1/3),0,x[1][0],x[1][1]),
                     },
                     "agent": {
-                        "anchor": (610,365),
-                        "dimensions": (332,305), 
+                        "anchor": (610,360),
+                        "dimensions": (332,310), 
                         "target_width": 400,
                         "crop": lambda *x: (0,0,x[1][0],x[1][1]) if x[0] else (x[2]-x[1][0],0,x[2],x[1][1]),
                         "file_path": "data/agents/agent_{agent}.png"
@@ -254,11 +255,11 @@ class Builder:
                         "justify": "c"
                     },
                     "player_name": {
-                        "anchor": (102,710),
+                        "anchor": (102,706),
                         "dimensions": (204, 50), 
                         "color": (255,255,255),
                         "font": Builder.fonts["tungsten"]["player_name"],
-                        "var_name": lambda *x: self.game_data["players"][int(x[0])][int(x[1])]["display_name"] if len(self.game_data["players"][int(x[0])][int(x[1])]["display_name"]) < 12 else self.game_data["players"][int(x[0])][int(x[1])]["display_name"][:10]+"...",
+                        "var_name": lambda *x: self.game_data["players"][int(x[0])][int(x[1])]["display_name"] if len(self.game_data["players"][int(x[0])][int(x[1])]["display_name"]) < 14 else self.game_data["players"][int(x[0])][int(x[1])]["display_name"][:12]+"...",
                         "upper": True,
                         "justify": "c"
                     },
@@ -306,8 +307,8 @@ class Builder:
                         "file_path": "data/agents/agent_{agent}.png"
                     },
                     "player_gradient": {
-                        "anchor": (102,868),
-                        "dimensions": (204,111), 
+                        "anchor": (102,803),
+                        "dimensions": (204,175), 
                         "crop": lambda *x: (0,0,x[0][0]+x[1][0],x[1][1]),
                         "file_path": "data/misc_assets/player_gradient.png"
                     }
@@ -332,6 +333,7 @@ class Builder:
             self.__draw_text(team_name_label,int(team_id))
 
             team_wl_label = refs["text"][f"team_{team_name}_wl"]
+            team_wl_label["color"] = team_wl_label["color"] if team["won_bool"] else team_wl_label["alt_color"]
             self.__draw_text(team_wl_label,int(team_id))
 
 
@@ -390,13 +392,13 @@ class Builder:
                         
                             # draw agent silhouette
                             agent_silhouette = mvp_refs["images"]["agent_silhouette"]
-                            offset = 6
+                            offset = 5
                             alpha = agent_image.getchannel('A')
                             silhouette = Image.new('RGBA', agent_image.size, color=(255,70,85,255) if team_id == 0 else (13,180,150,255))
                             silhouette.putalpha(alpha) 
 
                             s_crop_v = (True,image["dimensions"]) if team_id == 0 else (False,image["dimensions"])
-                            anchor_o = (image["anchor"][0]-offset,image["anchor"][1]) if team_id == 0 else (int(image["anchor"][0]+(image["dimensions"][0]*(1/3)))+offset,image["anchor"][1])
+                            anchor_o = (image["anchor"][0]-offset,image["anchor"][1]) if team_id == 0 else (int(image["anchor"][0]+(image["dimensions"][0]*(1/3)))+(offset+1),image["anchor"][1])
                             self.__draw_image(agent_silhouette,silhouette,size_axis="x",crop_vars=s_crop_v,anchor_override=anchor_o)
 
                             self.__draw_prepared_image(agent_image,anchor)
@@ -446,7 +448,7 @@ class Builder:
         self.draw_players()
 
 
-        self.img.save("output.png")
+        self.img.save(os.path.join(Builder.cur_path,f"output/{self.game_data['match_id']}.png"))
         
 
     def __draw_image(self,img_data,new_img,size_axis="y",crop_vars=(),anchor_override=None,no_draw=False):
@@ -479,15 +481,14 @@ class Builder:
         if img_data.get("centered"):
             anchor = (anchor[0]-new_width//2,anchor[1]-new_height//2)
             anchor = ((img_data["dimensions"][0]//2)+anchor[0],(img_data["dimensions"][1]//2)+anchor[1])
-            print(anchor)
-
+            
+            
         if not no_draw:
             self.img.paste(new_img, anchor, new_img)
         return new_img, anchor
 
     def __draw_prepared_image(self,new_img,anchor):
         self.img.paste(new_img,anchor,new_img)
-
 
 
     def __draw_text(self,label,*var):
