@@ -5,9 +5,6 @@ from PIL import Image, ImageDraw, ImageFont
 
 class Builder:
 
-    team_red_name = None
-    team_blue_name = None
-
     cur_path = os.path.abspath(os.path.join(os.path.dirname(__file__),".."))
     base_image = os.path.join(cur_path,"data/ggsheetreal.png")
     output_folder = os.path.join(cur_path,"output")
@@ -20,6 +17,7 @@ class Builder:
             "map_text": ImageFont.truetype(os.path.join(cur_path,"data/fonts/DINNextLTPro-Medium.ttf"), 30),
             "win_loss_label": ImageFont.truetype(os.path.join(cur_path,"data/fonts/DINNextLTPro-Medium.ttf"), 25),
             "player_stat_label": ImageFont.truetype(os.path.join(cur_path,"data/fonts/DINNextLTPro-Regular.ttf"), 12),
+            "timestamp": ImageFont.truetype(os.path.join(cur_path,"data/fonts/DINNextLTPro-Regular.ttf"), 22),
         },
         "tungsten": {
             "mvp_player": ImageFont.truetype(os.path.join(cur_path,"data/fonts/Tungsten-Bold.ttf"), 90),
@@ -55,8 +53,12 @@ class Builder:
         self.game_data = game_data
         self.img = Image.open(Builder.base_image)
         self.draw = ImageDraw.Draw(self.img)
+
+        self.team_red_name = "ODK" #defenders
+        self.team_blue_name = "AJG" #attackers
+
         self.image_ref_points = {
-            "header": {
+            "header_footer": {
                 "text": {
                     "map_label": {
                         "anchor": (47,215),
@@ -74,6 +76,15 @@ class Builder:
                         "var_name": lambda *x: self.game_data["match_map_display_name"],
                         "upper": True,
                     },
+                    "timestamp": {
+                        "anchor": (1335,1045),
+                        "dimensions": (575, 35), 
+                        "color": (138,148,156),
+                        "font": Builder.fonts["ddin"]["timestamp"],
+                        "var_name": lambda *x: self.game_data["timestamp"],
+                        "upper": True,
+                        "justify": "r"
+                    }
                     # "mode_name": {
                     #     "anchor": (1679,236),
                     #     "dimensions": (164,21), 
@@ -106,7 +117,13 @@ class Builder:
                         "target_width": 200,
                         "centered": True,
                         "file_path": "data/modes/mode_{mode}.png", 
-                    }
+                    },
+                    # "event_img": {
+                    #     "anchor": (1648,32),
+                    #     "dimensions": (240,240),
+                    #     "centered": True,
+                    #     "file_path": "data/misc_assets/event_img.png", 
+                    # }
                 }
             },
             "team_details": {
@@ -132,7 +149,7 @@ class Builder:
                         "dimensions": (350,92),
                         "color": (255,255,255),
                         "font": Builder.fonts["tungsten"]["header_team_name"],
-                        "var_name": lambda *x: Builder.team_red_name if Builder.team_red_name is not None else self.game_data["teams"][x[0]]["team_alias"],
+                        "var_name": lambda *x: self.team_red_name if self.team_red_name is not None else self.game_data["teams"][x[0]]["team_alias"],
                         "upper": True,
                         "justify": "r"
                     },
@@ -141,7 +158,7 @@ class Builder:
                         "dimensions": (350,92),
                         "color": (255,255,255),
                         "font": Builder.fonts["tungsten"]["header_team_name"],
-                        "var_name": lambda *x: Builder.team_blue_name if Builder.team_blue_name is not None else self.game_data["teams"][x[0]]["team_alias"],
+                        "var_name": lambda *x: self.team_blue_name if self.team_blue_name is not None else self.game_data["teams"][x[0]]["team_alias"],
                         "upper": True,
                         "justify": "l"
                     },
@@ -173,8 +190,8 @@ class Builder:
             "mvps": {
                 "text": {
                     "agent_name": {
-                        "anchor": (255,398),
-                        "dimensions": (296, 33), 
+                        "anchor": (250,398),
+                        "dimensions": (301, 33), 
                         "color": (139,150,154),
                         "font": Builder.fonts["ddin"]["mvp_agent"],
                         "var_name": lambda *x: self.game_data["players"][int(x[0])][int(x[1])]["agent_display_name"],
@@ -259,7 +276,7 @@ class Builder:
                         "dimensions": (204, 50), 
                         "color": (255,255,255),
                         "font": Builder.fonts["tungsten"]["player_name"],
-                        "var_name": lambda *x: self.game_data["players"][int(x[0])][int(x[1])]["display_name"] if len(self.game_data["players"][int(x[0])][int(x[1])]["display_name"]) < 14 else self.game_data["players"][int(x[0])][int(x[1])]["display_name"][:12]+"...",
+                        "var_name": lambda *x: self.game_data["players"][int(x[0])][int(x[1])]["display_name"] if len(self.game_data["players"][int(x[0])][int(x[1])]["display_name"]) < 13 else self.game_data["players"][int(x[0])][int(x[1])]["display_name"][:11]+"...",
                         "upper": True,
                         "justify": "c"
                     },
@@ -337,8 +354,8 @@ class Builder:
             self.__draw_text(team_wl_label,int(team_id))
 
 
-    def draw_header(self):
-        refs = self.image_ref_points["header"]
+    def draw_header_footer(self):
+        refs = self.image_ref_points["header_footer"]
         for img_type, image in refs["images"].items():
             new_img = Image.open(os.path.join(Builder.cur_path,*image["file_path"].format(map=self.game_data['match_map_display_name'].lower(),mode=self.game_data['match_mode'].lower()).split("/"))).convert("RGBA")
             self.__draw_image(image,new_img)
@@ -443,7 +460,7 @@ class Builder:
     def build_image(self):
         
 
-        self.draw_header()
+        self.draw_header_footer()
         self.draw_team_details()
         self.draw_players()
 
