@@ -52,13 +52,11 @@ class Loader:
 
         for season in all_content["Seasons"]:
             if season["IsActive"] and season["Type"] == "act":
-                for comp_season in all_content["CompetitiveSeasons"]:
-                    if comp_season["SeasonID"] == season["ID"]:
-                        content_data["season"] = {
-                            "competitive_uuid": comp_season["ID"],
-                            "season_uuid": season["ID"],
-                            "display_name": season["Name"]
-                        }
+                content_data["season"] = {
+                    "competitive_uuid": season["ID"],
+                    "season_uuid": season["ID"],
+                    "display_name": season["Name"]
+                }
         
         for agent in agents:
             content_data["agents"].append({

@@ -54,8 +54,8 @@ class Builder:
         self.img = Image.open(Builder.base_image)
         self.draw = ImageDraw.Draw(self.img)
 
-        self.team_red_name = "ODK" #defenders
-        self.team_blue_name = "AJG" #attackers
+        self.team_red_name = "DEF" #defenders
+        self.team_blue_name = "ATK" #attackers
 
         self.image_ref_points = {
             "header_footer": {
@@ -84,6 +84,14 @@ class Builder:
                         "var_name": lambda *x: self.game_data["timestamp"],
                         "upper": True,
                         "justify": "r"
+                    },
+                    "credit": {
+                        "anchor": (10,1045),
+                        "dimensions": (575, 35), 
+                        "color": (138,148,156),
+                        "font": Builder.fonts["ddin"]["timestamp"],
+                        "text": "github.com/colinhartigan/ggsheet",
+                        "justify": "l",
                     }
                     # "mode_name": {
                     #     "anchor": (1679,236),
