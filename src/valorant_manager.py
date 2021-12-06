@@ -11,15 +11,12 @@ class Valorant:
     def __init__(self):
         self.client = Client() 
         self.client.activate()
+        self.content = Loader.load_all_content(self.client)
 
-    def load_match_data(self):
+    def load_match_data(self, match_id):
         # agent images are from https://playvalorant.com/page-data/en-us/agents/page-data.json
         
-        content = Loader.load_all_content(self.client)
-        matches = self.client.fetch_match_history()["History"]
-        matchid = input("match id: ")
-        #matchid = matches[0]["MatchID"]
-        match_data = self.client.fetch_match_details(matchid)
+        match_data = self.client.fetch_match_details(match_id)
         
         # with open("match_reference.json", "w") as f:
         #     f.write(json.dumps(match_data))
@@ -32,8 +29,8 @@ class Valorant:
                 "match_map": match_data["matchInfo"]["mapId"],
                 "match_mode": match_data["matchInfo"]["queueID"],
                 "timestamp": datetime.datetime.fromtimestamp(match_data["matchInfo"]["gameStartMillis"]//1000).strftime('%m/%d/%Y %H:%M:%S'),
-                "match_mode_display_name": content["queue_aliases"][match_data["matchInfo"]["queueID"]],
-                "match_map_display_name": [gmap for gmap in content["maps"] if match_data["matchInfo"]["mapId"] in gmap["path"]][0]["display_name"],
+                "match_mode_display_name": self.content["queue_aliases"][match_data["matchInfo"]["queueID"]],
+                "match_map_display_name": [gmap for gmap in self.content["maps"] if match_data["matchInfo"]["mapId"] in gmap["path"]][0]["display_name"],
                 "teams": [
                     {
                         "team_name": team["teamId"],
@@ -50,7 +47,7 @@ class Valorant:
                             "display_name": player["gameName"],
                             "team_id": player["teamId"],
                             "agent_id": player["characterId"],
-                            "agent_display_name": [agent for agent in content["agents"] if player["characterId"] in agent["uuid"]][0]["display_name"],
+                            "agent_display_name": [agent for agent in self.content["agents"] if player["characterId"] in agent["uuid"]][0]["display_name"],
                             "kd": str(round(player["stats"]["kills"] / (player["stats"]["deaths"] if player["stats"]["deaths"] != 0 else 1),1)),
                             "kills": player["stats"]["kills"],
                             "combat_score": player["stats"]["score"] // total_rounds,
