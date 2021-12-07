@@ -9,7 +9,7 @@ class Valorant:
     file_path = os.path.join(cur_path,"../match_reference.json")
 
     def __init__(self):
-        self.client = Client() 
+        self.client = Client(region="na") 
         self.client.activate()
         self.content = Loader.load_all_content(self.client)
 
