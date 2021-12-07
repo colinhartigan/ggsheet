@@ -14,7 +14,7 @@ class Valorant:
         self.content = Loader.load_all_content(self.client)
 
     def load_match_data(self, match_id):
-        # agent images are from https://playvalorant.com/page-data/en-us/agents/page-data.json
+        
         
         match_data = self.client.fetch_match_details(match_id)
         

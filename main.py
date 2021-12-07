@@ -1,10 +1,12 @@
-from src import valorant_manager
-from src import image_builder
-
 import traceback
 from InquirerPy.base.control import Choice
 from InquirerPy.separator import Separator
 from InquirerPy import inquirer
+
+from src import valorant_manager
+from src import image_builder
+
+# agent images are from https://playvalorant.com/page-data/en-us/agents/page-data.json
 
 def loop():
     
