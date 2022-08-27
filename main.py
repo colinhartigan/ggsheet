@@ -5,11 +5,13 @@ from InquirerPy import inquirer
 
 from src import valorant_manager
 from src import image_builder
+from src import fetch_data
 
 # agent images are from https://playvalorant.com/page-data/en-us/agents/page-data.json
 
 def loop():
-    
+    fetch_data.fetch_all()
+
     mgr = valorant_manager.Valorant()
     content = mgr.content
     while True:
