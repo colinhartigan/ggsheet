@@ -6,7 +6,7 @@ import sys
 from InquirerPy.base.control import Choice
 from InquirerPy.separator import Separator
 
-def fetch(data_type:str)->None:
+def fetch_images(data_type:str)->None:
     url={}
     if data_type == 'agent':
         response = requests.get('https://playvalorant.com/page-data/en-us/agents/page-data.json')
