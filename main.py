@@ -1,7 +1,5 @@
-from secrets import choice
 import traceback
 from InquirerPy import inquirer
-from InquirerPy.separator import Separator
 
 from src import valorant_manager
 from src import image_builder
