@@ -4,7 +4,7 @@ from InquirerPy.base.control import Choice
 
 from src import valorant_manager
 from src import image_builder
-from src.fetch_data import fetch_images, fetch_matches
+from src.fetch_data import fetch_images, fetch_matches, write_json
 
 def main():
     mgr = valorant_manager.Valorant()
@@ -21,6 +21,7 @@ def main():
         elif match_id == "exit":
             break
         elif match_id == "reload":
+            write_json({})
             choices[:-2] = fetch_matches(mgr, content)
             continue
         if match_id is not None and match_id != "":

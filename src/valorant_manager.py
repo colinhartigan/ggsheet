@@ -2,7 +2,7 @@ from valclient.client import Client
 import os, json, datetime
 
 from .content_loader import Loader
-
+from .fetch_data import fetch_match_data, read_json
 class Valorant:
 
     cur_path = os.path.dirname(__file__)
@@ -14,13 +14,7 @@ class Valorant:
         self.content = Loader.load_all_content(self.client)
 
     def load_match_data(self, match_id):
-        
-        
-        match_data = self.client.fetch_match_details(match_id)
-        
-        # with open("match_reference.json", "w") as f:
-        #     f.write(json.dumps(match_data))
-        
+        match_data = fetch_match_data(self, match_id)[0]
         total_rounds = len(match_data["roundResults"])
 
         if match_data["matchInfo"]["queueID"] != "deathmatch":
