@@ -474,7 +474,7 @@ class Builder:
 
 
         self.img.save(os.path.join(Builder.cur_path,f"output/{self.game_data['match_id']}.png"))
-        
+        print(f"Done, image saved to output/{self.game_data['match_id']}.png \n")
 
     def __draw_image(self,img_data,new_img,size_axis="y",crop_vars=(),anchor_override=None,no_draw=False):
         width, height = new_img.size
