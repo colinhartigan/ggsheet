@@ -1,3 +1,10 @@
+try:
+    import ujson as json    # faster json, not a must
+    print('Using ujson')
+except ImportError:
+    import json
+    print('Using json')
+from copy import deepcopy
 import requests
 from os import listdir
 from os.path import isfile, join
@@ -35,11 +42,33 @@ def download(new:list, data_type:str, path:str, url:dict)->None:
         with open(f'{path}\\{data_type}_{_}.png', 'wb') as f:
             f.write(response.content)
 
+def read_json(path: str = 'match_reference.json') -> dict:
+    try:
+        with open(path, 'r') as f:
+            return json.load(f)
+    except (FileNotFoundError, ValueError):
+        write_json({})
+        return read_json()
+
+def write_json(data: dict, path: str = 'match_reference.json'):
+    with open(path, 'w') as f:
+        json.dump(data, f, indent=2)
+
+def fetch_match_data(mgr, match_id, matches_data_dict: dict = read_json()):
+    if match_id in matches_data_dict.keys():
+        match_data = matches_data_dict[match_id]
+    else:
+        match_data = mgr.client.fetch_match_details(match_id)
+        matches_data_dict[match_id] = match_data
+    return match_data, matches_data_dict
+
 def fetch_matches(mgr, content) -> list:
     matches = mgr.client.fetch_match_history()["History"]
     choices = [Choice("custom", "use my own match id"), Separator()]
+    matches_data_dict = read_json()
+    matches_data_dict_old = deepcopy(matches_data_dict)
     for i, match in enumerate(matches):
-        match_data = mgr.client.fetch_match_details(match["MatchID"])
+        match_data, matches_data_dict = fetch_match_data(mgr, match['MatchID'], matches_data_dict)
 
         me = next(player for player in match_data["players"] if player["subject"] == mgr.client.puuid)
         my_team = next(team for team in match_data["teams"] if team["teamId"] == me["teamId"])
@@ -58,6 +87,9 @@ def fetch_matches(mgr, content) -> list:
         choices.append(Choice(match_id, string))
 
         progress(i, len(matches), suffix=f' Fetching recent matches')
+
+    if  matches_data_dict != matches_data_dict_old:
+        write_json(matches_data_dict)
     return choices
 
 
